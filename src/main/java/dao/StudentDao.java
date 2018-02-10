@@ -33,7 +33,7 @@ public class StudentDao {
 				} else if("name".equals(key)){
 					student.setName(e.getValue().toString());
 				} else if("birthday".equals(key)){
-					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 					try {
 						student.setBirthday(sdf.parse(e.getValue().toString()));
 					} catch (ParseException e1) {
@@ -78,6 +78,63 @@ public class StudentDao {
 		Jedis jedis = RedisUtils.getJedis();
 		Set<String> set = jedis.keys("student*");
 		return set.size();
+	}
+	/**
+	 * 
+	 * 删除
+	 * 
+	 * */
+	public void removeStudent(String[] index) {
+		Jedis jedis = RedisUtils.getJedis();
+		String newKey = "student";
+		for (String str : index){
+			newKey = "student"+str;
+			jedis.del(newKey);
+		}
+		
+	}
+	/**
+	 * 获得单个student实例
+	 * */
+	public Student getStudent(String id) {
+		Jedis jedis = RedisUtils.getJedis();
+		String newKey = "student"+id;
+		Map<String,String> stuMap = jedis.hgetAll(newKey);
+		Set<Entry<String,String>> entry = stuMap.entrySet();
+		Student student = new Student();
+		for(Entry e : entry) {
+			String key = e.getKey().toString();
+			if("id".equals(key)){
+				student.setId(e.getValue().toString());
+			} else if("name".equals(key)){
+				student.setName(e.getValue().toString());
+			} else if("birthday".equals(key)){
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+				try {
+					student.setBirthday(sdf.parse(e.getValue().toString()));
+				} catch (ParseException e1) {
+					e1.printStackTrace();
+				}
+			} else if("description".equals(key)){
+				student.setDescription(e.getValue().toString());
+			} else if("avgscore".equals(key)){
+				student.setAvgscore(Integer.parseInt(e.getValue().toString()));
+			}
+		}
+		return student;
+	}
+	/**
+	 * 更新操作
+	 * 
+	 * */
+	public void updateStudent(Student tempStu) {
+		Jedis jedis = RedisUtils.getJedis();
+        String newKey = "student"+tempStu.getId();
+		
+		jedis.hset(newKey,"name", tempStu.getName());
+		jedis.hset(newKey,"birthday", tempStu.getBirthday().toLocaleString());
+		jedis.hset(newKey,"description", tempStu.getDescription());
+		jedis.hset(newKey,"avgscore", tempStu.getAvgscore().toString());
 	}
 	
 }

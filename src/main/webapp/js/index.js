@@ -186,10 +186,10 @@ $(function(){
 					url:'studentServlet?action=updateStudent',
 					data:{
 						id:updated[0].id,
-						name:inserted[0].name,
-						birthday:inserted[0].birthday,
-						description:inserted[0].description,
-						avgscore:inserted[0].avgscore,
+						name:updated[0].name,
+						birthday:updated[0].birthday,
+						description:updated[0].description,
+						avgscore:updated[0].avgscore,
 					},
 					beforeSend:function(){
 						$("#datagrid").datagrid('loading');

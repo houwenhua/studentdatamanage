@@ -61,8 +61,9 @@ public class StudentServlet extends HttpServlet{
 	}
 	private void removeStudent(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String ids = request.getParameter("ids");
-		ss.removeBatchStudent(ids);
-		response.getWriter().println("1");
+		String[] index = ids.split(",");
+		ss.removeBatchStudent(index);
+		response.getWriter().write(new Integer(index.length).toString());
 		logger.info(ids);
 	}
 	private void updateStudent(HttpServletRequest request, HttpServletResponse response) throws ParseException, IOException {

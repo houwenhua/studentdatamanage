@@ -19,11 +19,18 @@ public class StudentService {
 		sd.saveValue(stu);
 	}
 	public void updateOneStudent(Student stu) {
-		
-		
+		//获得redis中原来的数据
+		Student tempStu = sd.getStudent(stu.getId());
+		//进行修改
+		tempStu.setName(stu.getName());
+		tempStu.setBirthday(stu.getBirthday());
+		tempStu.setDescription(stu.getDescription());
+		tempStu.setAvgscore(stu.getAvgscore());
+		//进行保存
+		sd.updateStudent(tempStu);
 	}
-	public void removeBatchStudent(String ids) {
-		
+	public void removeBatchStudent(String[] index) {
+		sd.removeStudent(index);
 	}
 
 }
