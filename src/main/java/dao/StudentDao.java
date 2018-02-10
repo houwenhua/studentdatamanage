@@ -3,7 +3,9 @@ package dao;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -50,20 +52,30 @@ public class StudentDao {
 		return list;
 	}
 	/**
-	 * 设置value
+	 * 保存到hash表
 	 * */
 	public void saveValue(Student std) {
 		Jedis jedis = RedisUtils.getJedis();
 		Set<String> set = jedis.keys("student*");
+		Iterator it = set.iterator();
+		int[] numKey = new int[set.size()];
+		int studentCount = 0;
+		int MaxStudent = 0;
 		String id = null;
 		if(set == null || set.size() <= 0){
 			id = "1";
 		} else {
-			String key = set.iterator().next();
-			id = jedis.hget(key, "id");
-			int tempId = Integer.parseInt(id);
-			Integer tempId2 = (tempId + 1);
-			id = tempId2.toString();
+			while(it.hasNext()){
+				String key = (String) it.next();
+				key = key.substring(7);
+				int count= Integer.parseInt(key);
+				numKey[studentCount] = count;
+				studentCount++;
+			}
+			//排序并获得最大值
+			Arrays.sort(numKey);
+			MaxStudent = numKey[numKey.length-1];
+			id = new Integer(MaxStudent + 1).toString();
 		}
 		String newKey = "student"+id;
 		
