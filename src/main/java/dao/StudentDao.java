@@ -20,7 +20,13 @@ import redisutils.RedisUtils;
 public class StudentDao {
 
 	private static final Logger logger = Logger.getLogger(StudentDao.class);
-	public List find () {
+	/**
+	 * 获得所有student对象 
+	 * @param rows 每页显示行数
+	 * @param page 当前页
+	 * 
+	 * */
+	public List find (int page, int rows) {
 		Jedis jedis = RedisUtils.getJedis();
 		Set<String> set = jedis.keys("student*");
 		List list = new ArrayList();
@@ -30,6 +36,7 @@ public class StudentDao {
 			Student student = new Student();
 			for(Entry e : entry) {
 				String key = e.getKey().toString();
+				
 				if("id".equals(key)){
 					student.setId(e.getValue().toString());
 				} else if("name".equals(key)){
@@ -49,7 +56,38 @@ public class StudentDao {
 			}
 			list.add(student);
 		}
-		return list;
+		//排序并分页
+		List<Student> pageList = this.pageTheStudent(list,page,rows);
+		return pageList;
+	}
+	
+	//排序并分页
+	private List<Student> pageTheStudent(List<Student> list,int page,int rows) {
+		List tempList = new ArrayList();
+        Integer[] tempArray = new Integer[list.size()];
+        int count = 0;
+        //分页用到的List
+        List pageList = new ArrayList();
+        //获得student列中所有的分数数组
+		for(Student stu : list){
+			tempArray[count++] = stu.getAvgscore();
+		}
+		//按顺序排列
+		Arrays.sort(tempArray);
+		//按分数进行list对象的排序
+		for(int i = 0 ; i < list.size(); i++) {
+			for(Student stu : list){
+				if(tempArray[i]==stu.getAvgscore()){
+					tempList.add(stu);
+				}
+			}
+		}
+		//进行分页
+		for(int i = ((page-1)*rows);i < rows && i<list.size();i++){
+			pageList.add(tempList.get(i));
+		}
+		
+		return pageList;
 	}
 	/**
 	 * 保存到hash表
@@ -85,7 +123,10 @@ public class StudentDao {
 		jedis.hset(newKey,"description", std.getDescription());
 		jedis.hset(newKey,"avgscore", std.getAvgscore().toString());
 	}
-	
+	/**
+	 * 计算总记录数
+	 * 
+	 * */
 	public int getCount() {
 		Jedis jedis = RedisUtils.getJedis();
 		Set<String> set = jedis.keys("student*");

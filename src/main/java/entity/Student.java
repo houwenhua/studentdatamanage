@@ -3,12 +3,12 @@ package entity;
 import java.util.Date;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class Student {
 
 	private String id;
 	private String name;
-	@JSONField (format="yyyy-MM-dd") 
 	private Date birthday;
 	private String description;
 	private Integer avgscore;
@@ -45,6 +45,7 @@ public class Student {
 	public Date getBirthday() {
 		return birthday;
 	}
+	@JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
 	public void setBirthday(Date birthday) {
 		this.birthday = birthday;
 	}

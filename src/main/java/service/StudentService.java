@@ -9,8 +9,8 @@ import entity.Student;
 public class StudentService {
 
 	private StudentDao sd = new StudentDao();
-	public Pagination findAllStudent(Object object, int page, int rows) {
-		List list = sd.find();
+	public Pagination findAllStudent(int page, int rows) {
+		List list = sd.find(page,rows);
 		int count = sd.getCount();
 		Pagination pagination = new Pagination((long)count,page,list);
 		return pagination;

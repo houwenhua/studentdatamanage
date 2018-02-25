@@ -14,6 +14,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import com.alibaba.fastjson.JSON;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import entity.Pagination;
 import entity.Student;
@@ -23,6 +28,13 @@ import service.StudentService;
 @WebServlet("/studentServlet")
 public class StudentServlet extends HttpServlet{
 
+	private ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+            .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)  //类级别的设置，JsonInclude.Include.NON_EMPTY标识只有非NULL的值才会被纳入json string之中，其余的都将被忽略
+            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES) //禁止使用出现未知属性之时，抛出异常
+
+.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+            .setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);//转化后的json的key命名格式
+
 	private StudentService ss = new StudentService();
 	private static final Logger logger = Logger.getLogger(StudentServlet.class);
 	@Override
@@ -31,14 +43,14 @@ public class StudentServlet extends HttpServlet{
 	}
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		Student student = null;
+		response.setContentType("text/html;charset=utf-8");
 		String action = request.getParameter("action");
 		logger.info(action);
 		if("queryAll".equals(action)) {
 			int page = Integer.parseInt(request.getParameter("page"));
 			int rows = Integer.parseInt(request.getParameter("rows"));
-			Pagination pagination = ss.findAllStudent(null,page,rows);
-			String json = JSON.toJSONString(pagination);
+			Pagination pagination = ss.findAllStudent(page,rows);
+			String json = OBJECT_MAPPER.writeValueAsString(pagination);
 			response.getWriter().println(json);
 		}else if("addStudent".equals(action)){
 			try {
